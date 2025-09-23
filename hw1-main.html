@@ -29,11 +29,10 @@
             margin-bottom: 10px;
         }
 
-            .main-title { 
+        .main-title { 
             text-align: center;                
             font-size: 30px;
             font-weight: 700;
-            
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             color: rgb(72, 97, 211);
@@ -227,10 +226,10 @@
 
         const tooltip = d3.select("#tooltip");
 
-        // 自動載入CSV檔案
+        // 載入CSV檔案
         function loadCSVFile() {
             // 嘗試載入 main.csv 檔案
-            d3.csv("/main.csv")
+            d3.csv("https://kailunkong0720.github.io/Information-Visualization/main.csv")//我把csv數據上傳到github了.所以我才使用這個網址，方便我把網頁呈現出來
                 .then(function(data) {
                     console.log("成功讀取CSV檔案:", data);
                     processCSVData(data);
@@ -247,7 +246,7 @@
                 csvData = [];
                 
                 rawCSVData.forEach(row => {
-                    // 假設CSV的列名為：年份,男,女,0-9歲男,0-9歲女,10-14歲男,10-14歲女...等
+                    //  IF CSV的列名為：年份,男,女,0-9歲男,0-9歲女,10-14歲男,10-14歲女...等
                     const year = parseInt(row['年份'] || row['year'] || Object.values(row)[0]);
                     const male = parseInt(row['男'] || row['male'] || Object.values(row)[1]) || 0;
                     const female = parseInt(row['女'] || row['female'] || Object.values(row)[2]) || 0;
