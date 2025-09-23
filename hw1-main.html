@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>江凱倫-114753144-HW1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            color: #7e7fca;
+            margin-bottom: 10px;
+        }
+
+            .main-title { 
+            text-align: center;                
+            font-size: 30px;
+            font-weight: 700;
+            
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            color: rgb(72, 97, 211);
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+            
+        }
+        
+        .year-selector {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            border: 1px solid #6d1ada
+        }
+        
+        .chart-container {
+            text-align: center;
+            border: 1px solid #4ee6c0;
+            color: rgb(109, 149, 182);
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 2px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        .bar-male {
+            fill: #4A90E2;
+        }
+        
+        .bar-female {
+            fill: #E24A4A;
+        }
+        
+        .bar-male:hover, .bar-female:hover {
+            opacity: 0.8;
+        }
+        
+        .axis {
+            font-size: 12px;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            padding: 50px;
+            color: rgb(72, 97, 211);
+        }
+        
+        .error {
+            text-align: center;
+            font-size: 16px;
+            color: #e74c3c;
+            padding: 50px;
+            background: #ffeaea;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .file-info {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .container-transparent {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        text-align: center;
+        font-size: 18px;
+        color: #605df8;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-title">台灣人口結構變遷分析（2010-2023年各年齡層人口分布趨勢研究）</h1>
+        <h1 class="title">2010-2023年各年齡層人口分布趨勢研究</h1>
+        <!--<div class="subtitle"></div>備用-->
+        <div class="file-info">資料來源：<a href="https://data.gov.tw/dataset/133430" target="_blank">內政部統計處</a> | 資料期間：2010年1月 - 2023年12月
+</div>
+
+        <div class="header">
+            
+            
+            <p class="data-source"></p>
+        </div>
+        
+        <div id="loading" class="loading">正在載入數據...</div>
+        <div id="error" style="display: none;"></div>
+        
+        <div id="controls" class="controls" style="display: none;">
+            <label>年份：</label>
+            <select id="yearSelect" class="year-selector"></select>
+        </div>
+        
+        <div id="chartContainer" class="chart-container" style="display: none;">
+            <svg id="chart"></svg>
+        </div>
+        
+        <div id="legend" class="legend" style="display: none;">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4A90E2;"></div>
+                <span>男性</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #E24A4A;"></div>
+                <span>女性</span>
+            </div>
+            
+        </div>
+<div class="container-transparent">
+  此數我據是從政府資料開放平臺找的，以上的數據是自殺通報人數（99年以後），
+  在資料中可以看到每年的自殺人數與性別，我們可以透過上方的下拉選單來切換不同的年份，
+  我們從數據中可以看到前期的自殺人數較少，後期的自殺人數較多，
+  男性的自殺人數遠高於女性從，且2016年開始30-39歲的男性自殺人數開始減少，
+  反而20-29歲的男性年齡組開始提升，前期的自殺人數較少，後期的自殺人數較多，
+  年齡組都落在20-29歲之間，在女性方面我們可以看到從2021年開始15-19歲的女性自殺人數開始提升，
+  甚至在2023年的時候15-19歲的女性自殺人數超過20-29歲的女性自殺人數，這可能是因為社會環境的變化，
+  我個人覺得也可能是考研或者博士生論文壓力大或者是工作的壓力，導致自殺人數增加。
+</div>
+    </div>
+
+
+</div>
+
+
+<div class="tooltip" id="tooltip"></div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 全域變數
+        let csvData = [];
+        let currentYear = null;
+        const ageGroups = ['0-9歲', '10-14歲', '15-19歲', '20-29歲', '30-39歲', '40-49歲', '50-59歲', '60歲以上'];
+
+        // 圖表設置
+        const margin = {top: 20, right: 60, bottom: 60, left: 60};
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom);
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const tooltip = d3.select("#tooltip");
+
+        // 自動載入CSV檔案
+        function loadCSVFile() {
+            // 嘗試載入 main.csv 檔案
+            d3.csv("/main.csv")
+                .then(function(data) {
+                    console.log("成功讀取CSV檔案:", data);
+                    processCSVData(data);
+                })
+                .catch(function(error) {
+                    console.error("載入CSV檔案失敗:", error);
+                    showError("無法載入 main.csv 檔案。請確認：<br>1. 檔案名稱正確為 main.csv<br>2. 檔案與HTML位於同一目錄<br>3. 使用HTTP伺服器運行（如 Live Server）<br><br>錯誤詳情：" + error.message);
+                });
+        }
+
+        // 處理CSV數據
+        function processCSVData(rawCSVData) {
+            try {
+                csvData = [];
+                
+                rawCSVData.forEach(row => {
+                    // 假設CSV的列名為：年份,男,女,0-9歲男,0-9歲女,10-14歲男,10-14歲女...等
+                    const year = parseInt(row['年份'] || row['year'] || Object.values(row)[0]);
+                    const male = parseInt(row['男'] || row['male'] || Object.values(row)[1]) || 0;
+                    const female = parseInt(row['女'] || row['female'] || Object.values(row)[2]) || 0;
+                    
+                    // 提取年齡組數據（從第4欄開始的16個欄位）
+                    const ageGroups = [];
+                    const values = Object.values(row);
+                    for (let i = 3; i < 19 && i < values.length; i++) {
+                        ageGroups.push(parseInt(values[i]) || 0);
+                    }
+                    
+                    // 如果年齡組數據不足16個，補0
+                    while (ageGroups.length < 16) {
+                        ageGroups.push(0);
+                    }
+                    
+                    if (!isNaN(year)) {
+                        csvData.push({
+                            year: year,
+                            male: male,
+                            female: female,
+                            ageGroups: ageGroups
+                        });
+                    }
+                });
+                
+                if (csvData.length > 0) {
+                    csvData.sort((a, b) => a.year - b.year);
+                    hideLoading();
+                    initializeChart();
+                } else {
+                    throw new Error("沒有找到有效的數據行");
+                }
+                
+            } catch (error) {
+                console.error("處理CSV數據時發生錯誤:", error);
+                showError("CSV數據處理失敗: " + error.message + "<br><br>請檢查CSV檔案格式是否正確。");
+            }
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').innerHTML = `<div class="error">${message}</div>`;
+            document.getElementById('error').style.display = 'block';
+        }
+
+        // 隱藏載入畫面
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // 初始化圖表
+        function initializeChart() {
+            if (csvData.length === 0) return;
+
+            // 顯示控制項和圖表
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('chartContainer').style.display = 'block';
+            document.getElementById('legend').style.display = 'flex';
+
+            // 填充年份選擇器
+            const yearSelect = document.getElementById('yearSelect');
+            yearSelect.innerHTML = '';
+            csvData.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.year;
+                option.text = d.year + '年';
+                yearSelect.appendChild(option);
+            });
+
+            // 設定預設年份
+            currentYear = csvData[csvData.length - 1].year;
+            yearSelect.value = currentYear;
+
+            // 綁定事件
+            yearSelect.addEventListener('change', function() {
+                currentYear = parseInt(this.value);
+                updateChart();
+            });
+
+            // 繪製圖表
+            updateChart();
+        }
+
+        // 處理年齡組數據
+        function processData(yearData) {
+            const processed = [];
+            for (let i = 0; i < 8; i++) {
+                const maleIndex = i * 2;
+                const femaleIndex = i * 2 + 1;
+                processed.push({
+                    ageGroup: ageGroups[i],
+                    male: yearData.ageGroups[maleIndex] || 0,
+                    female: yearData.ageGroups[femaleIndex] || 0
+                });
+            }
+            return processed;
+        }
+
+        // 更新圖表
+        function updateChart() {
+            if (!currentYear || csvData.length === 0) return;
+
+            const yearData = csvData.find(d => d.year === currentYear);
+            if (!yearData) return;
+
+            const data = processData(yearData);
+            drawChart(data);
+            
+            // 更新標題
+            d3.select(".title").text(`${currentYear}年人口結構條狀圖`);
+        }
+
+        // 繪製條狀圖
+        function drawChart(data) {
+            g.selectAll("*").remove();
+
+            // 設置比例尺
+            const x0 = d3.scaleBand()
+                .domain(ageGroups)
+                .range([0, width])
+                .paddingInner(0.2)
+                .paddingOuter(0.1);
+
+            const x1 = d3.scaleBand()
+                .domain(['male', 'female'])
+                .range([0, x0.bandwidth()])
+                .padding(0.05);
+
+            const maxValue = d3.max(data, d => Math.max(d.male, d.female));
+            const y = d3.scaleLinear()
+                .domain([0, maxValue])
+                .range([height, 0]);
+
+            // 繪製男性條形
+            g.selectAll(".bar-male")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar-male")
+                .attr("x", d => x0(d.ageGroup) + x1('male'))
+                .attr("y", d => y(d.male))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d.male))
+                .on("mouseover", function(event, d) {
+                    tooltip.style("opacity", 1)
+                        .html(`${d.ageGroup}<br>男性: ${d.male.toLocaleString()} 人`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                        
+                })
+                .on("mouseout", function() {
+                    tooltip.style("opacity", 0);
+                });
+
+            // 繪製女性條形
+            g.selectAll(".bar-female")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar-female")
+                .attr("x", d => x0(d.ageGroup) + x1('female'))
+                .attr("y", d => y(d.female))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d.female))
+                .on("mouseover", function(event, d) {
+                    tooltip.style("opacity", 1)
+                        .html(`${d.ageGroup}<br>女性: ${d.female.toLocaleString()} 人`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.style("opacity", 0);
+                    
+                });
+
+            // X軸
+            g.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x0));
+
+            // Y軸
+            g.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).tickFormat(d => d.toLocaleString()));
+
+            // 軸標籤
+            g.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + 45)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .style("fill", "rgb(72, 97, 211)")
+                .text("年齡組");
+                
+
+            g.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -40)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .style("fill", "rgb(72, 97, 211)")
+                .text("人口數");
+        }
+
+        // 頁面載入時自動執行
+        window.addEventListener('load', function() {
+            loadCSVFile();
+        });
+    </script>
+</body>
+</html>
