@@ -1,0 +1,225 @@
+{
+  "nodes": [
+    {
+      "id": "梅長蘇",
+      "group": "protagonist",
+      "desc": "江左梅郎，原林殊"
+    },
+    {
+      "id": "梁帝",
+      "group": "royal",
+      "desc": "大梁皇帝"
+    },
+    {
+      "id": "靖王",
+      "group": "royal",
+      "desc": "蕭景琰，七皇子"
+    },
+    {
+      "id": "譽王",
+      "group": "royal",
+      "desc": "蕭景宣，太子之爭"
+    },
+    {
+      "id": "太子",
+      "group": "royal",
+      "desc": "蕭景玄，原太子"
+    },
+    {
+      "id": "霓凰郡主",
+      "group": "royal",
+      "desc": "穆霓凰，雲南穆王府"
+    },
+    {
+      "id": "祁王",
+      "group": "chiyan",
+      "desc": "蕭景禹，赤焰軍統帥"
+    },
+    {
+      "id": "林燮",
+      "group": "chiyan",
+      "desc": "林殊之父，赤焰軍元帥"
+    },
+    {
+      "id": "聶鋒",
+      "group": "chiyan",
+      "desc": "赤焰軍副將"
+    },
+    {
+      "id": "藺晨",
+      "group": "jianghu",
+      "desc": "琅琊閣主"
+    },
+    {
+      "id": "飛流",
+      "group": "jianghu",
+      "desc": "梅長蘇隨從"
+    },
+    {
+      "id": "黎綱",
+      "group": "jianghu",
+      "desc": "江左盟軍師"
+    },
+    {
+      "id": "蒙摯",
+      "group": "jianghu",
+      "desc": "懸鏡司首尊"
+    },
+    {
+      "id": "謝玉",
+      "group": "court",
+      "desc": "寧國侯，謀害赤焰軍"
+    },
+    {
+      "id": "夏江",
+      "group": "court",
+      "desc": "懸鏡司首尊"
+    },
+    {
+      "id": "言侯爺",
+      "group": "court",
+      "desc": "言闕，朝廷重臣"
+    }
+  ],
+  "links": [
+    {
+      "source": "梅長蘇",
+      "target": "靖王",
+      "relation": "輔佐",
+      "color": "#e74c3c"
+    },
+    {
+      "source": "梅長蘇",
+      "target": "飛流",
+      "relation": "主僕",
+      "color": "#95a5a6"
+    },
+    {
+      "source": "梅長蘇",
+      "target": "藺晨",
+      "relation": "摯友",
+      "color": "#f39c12"
+    },
+    {
+      "source": "梅長蘇",
+      "target": "霓凰郡主",
+      "relation": "舊情",
+      "color": "#e91e63"
+    },
+    {
+      "source": "梅長蘇",
+      "target": "黎綱",
+      "relation": "江左盟",
+      "color": "#9c27b0"
+    },
+    {
+      "source": "梁帝",
+      "target": "靖王",
+      "relation": "父子",
+      "color": "#3498db"
+    },
+    {
+      "source": "梁帝",
+      "target": "譽王",
+      "relation": "父子",
+      "color": "#3498db"
+    },
+    {
+      "source": "梁帝",
+      "target": "太子",
+      "relation": "父子",
+      "color": "#3498db"
+    },
+    {
+      "source": "梁帝",
+      "target": "祁王",
+      "relation": "父子",
+      "color": "#3498db"
+    },
+    {
+      "source": "靖王",
+      "target": "譽王",
+      "relation": "兄弟爭鬥",
+      "color": "#e67e22"
+    },
+    {
+      "source": "祁王",
+      "target": "林燮",
+      "relation": "統領",
+      "color": "#2ecc71"
+    },
+    {
+      "source": "林燮",
+      "target": "梅長蘇",
+      "relation": "父子",
+      "color": "#2ecc71"
+    },
+    {
+      "source": "林燮",
+      "target": "聶鋒",
+      "relation": "上下級",
+      "color": "#2ecc71"
+    },
+    {
+      "source": "霓凰郡主",
+      "target": "梅長蘇",
+      "relation": "未婚夫妻",
+      "color": "#e91e63"
+    },
+    {
+      "source": "謝玉",
+      "target": "梅長蘇",
+      "relation": "仇敵",
+      "color": "#c0392b"
+    },
+    {
+      "source": "夏江",
+      "target": "梅長蘇",
+      "relation": "對手",
+      "color": "#c0392b"
+    },
+    {
+      "source": "謝玉",
+      "target": "祁王",
+      "relation": "陷害",
+      "color": "#c0392b"
+    },
+    {
+      "source": "藺晨",
+      "target": "梁帝",
+      "relation": "舊識",
+      "color": "#95a5a6"
+    },
+    {
+      "source": "靖王",
+      "target": "霓凰郡主",
+      "relation": "青梅竹馬",
+      "color": "#f39c12"
+    },
+    {
+      "source": "蒙摯",
+      "target": "梅長蘇",
+      "relation": "協助",
+      "color": "#16a085"
+    },
+    {
+      "source": "言侯爺",
+      "target": "梁帝",
+      "relation": "朝臣",
+      "color": "#9b59b6"
+    },
+    {
+      "source": "言侯爺",
+      "target": "靖王",
+      "relation": "支持",
+      "color": "#9b59b6"
+    }
+  ],
+  "colorMap": {
+    "protagonist": "#e74c3c",
+    "royal": "#3498db",
+    "chiyan": "#2ecc71",
+    "jianghu": "#f39c12",
+    "court": "#9b59b6"
+  }
+}
