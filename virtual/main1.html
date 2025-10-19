@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>琅琊榜關係族譜</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            background: #ffffff;
+        }
+        
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .info-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            margin-top: 30px;
+        }
+        
+        .info-box {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .info-box p {
+            color: #555;
+            line-height: 1.8;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        #graph-container {
+            position: relative;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        #graph {
+            width: 100%;
+            height: 700px;
+            position: relative;
+        }
+        
+        #graph svg {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 8px;
+            color: #333;
+            border: 2px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .legend h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .legend-item {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #fff;
+        }
+        
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .node {
+            pointer-events: all;
+        }
+        
+        .node:hover circle {
+            stroke-width: 4px;
+            filter: brightness(1.3);
+            z-index: 100;
+        }
+        
+        .node text {
+            font-size: 12px;
+            pointer-events: none;
+            text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+            fill: #333;
+            font-weight: bold;
+        }
+        
+        .link {
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .link-label {
+            font-size: 10px;
+            fill: #666;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.9);
+            pointer-events: none;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 200px;
+            border: 1px solid #ffd700;
+            z-index: 1000;
+        }
+        
+        .data-source {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .x-axis-label {
+            bottom: 10px;
+            right: 50%;
+            transform: translateX(50%);
+        }
+        
+        .y-axis-label {
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%) rotate(-90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>琅琊榜關係族譜圖</h1>
+            <p class="subtitle">基於力導向圖的人物關係網絡視覺化</p>
+        </div>
+        
+        <div id="graph-container">
+            <div class="axis-label y-axis-label">關係網絡空間</div>
+            <div class="axis-label x-axis-label">角色分布維度</div>
+            
+            <div id="graph"></div>
+            <div class="tooltip"></div>
+            <div class="legend">
+                <h3>角色分類圖標</h3>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>主角</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3498db;"></div>
+                    <span>皇室</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2ecc71;"></div>
+                    <span>赤焰軍</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f39c12;"></div>
+                    <span>江湖</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9b59b6;"></div>
+                    <span>朝臣</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-box">
+                <h3>設計選擇說明</h3>
+                <p>本視覺化採用力導向圖（Force-Directed Graph）呈現琅琊榜的複雜人物關係網絡。選擇此設計基於以下考量：(1) 使用色彩編碼（Color Coding）區分五大角色群體，符合視覺分組原則；(2) 採用節點-連線結構，清晰展現多對多的複雜關係；(3) 提供互動拖曳功能，讓使用者自主探索關係網絡，增強資訊理解度。連線顏色對應關係類型，圓形節點大小一致確保視覺平衡。</p>
+            </div>
+            
+            <div class="info-box">
+                <h3>設計過程經驗法則</h3>
+                <p>設計過程遵循多項視覺化經驗法則：(1) 色彩選擇遵循色彩和諧原則，避免使用過多顏色造成認知負荷；(2) 應用格式塔接近性原則，相關角色在力導向模擬中自然聚集；(3) 提供懸浮提示（Tooltip）降低記憶負擔，使用者可即時查看角色資訊；(4) 設置邊界限制防止節點超出可視範圍，提升使用體驗；(5) 採用半透明圖例確保不遮擋主要內容，符合非遮蔽性原則。</p>
+            </div>
+        </div>
+        
+        <div class="data-source">
+            <strong>資料來源：</strong>電視劇《琅琊榜》(2015) | 原著小說：海宴《琅琊榜》 | 資料整理：根據劇情整理的人物關係網絡
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('graph');
+        const width = container.offsetWidth;
+        const height = 700;
+
+        // 從外部 JSON 檔案讀取資料
+        d3.json('main.json').then(data => {
+            const nodes = data.nodes;
+            const links = data.links;
+            const colorMap = data.colorMap;
+
+            const svg = d3.select('#graph')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const tooltip = d3.select('.tooltip');
+
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(150))
+                .force('charge', d3.forceManyBody().strength(-500))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(50));
+
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(links)
+                .join('line')
+                .attr('class', 'link')
+                .attr('stroke', d => d.color);
+
+            const linkLabel = svg.append('g')
+                .selectAll('text')
+                .data(links)
+                .join('text')
+                .attr('class', 'link-label')
+                .text(d => d.relation);
+
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(nodes)
+                .join('g')
+                .attr('class', 'node')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+
+            node.append('circle')
+                .attr('r', 20)
+                .attr('fill', d => colorMap[d.group]);
+
+            node.append('text')
+                .attr('dy', 35)
+                .attr('text-anchor', 'middle')
+                .text(d => d.id);
+
+            node.on('mouseover', function(event, d) {
+                tooltip.style('opacity', 1)
+                    .html(`<strong>${d.id}</strong><br>${d.desc}`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                tooltip.style('opacity', 0);
+            });
+
+            simulation.on('tick', () => {
+                // 限制節點在容器範圍內
+                nodes.forEach(d => {
+                    d.x = Math.max(30, Math.min(width - 30, d.x));
+                    d.y = Math.max(30, Math.min(height - 30, d.y));
+                });
+                
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                linkLabel
+                    .attr('x', d => (d.source.x + d.target.x) / 2)
+                    .attr('y', d => (d.source.y + d.target.y) / 2);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = Math.max(30, Math.min(width - 30, event.x));
+                d.fy = Math.max(30, Math.min(height - 30, event.y));
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }).catch(error => {
+            console.error('讀取 JSON 檔案時發生錯誤:', error);
+            document.getElementById('graph').innerHTML = '<p style="text-align:center;padding:50px;color:red;">無法載入資料檔案 main.json，請確認檔案位置正確。</p>';
+        });
+    </script>
+</body>
+</html>
